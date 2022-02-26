@@ -11,8 +11,8 @@
       <!-- 搜尋區域 -->
       <el-row>
         <el-col :span="8">
-          <el-input placeholder="請輸入内容">
-            <el-button slot="append" icon="el-icon-search"></el-button>
+          <el-input placeholder="請輸入内容" clearable v-model="queryInfo.query" @clear="getOrderList">
+            <el-button slot="append" icon="el-icon-search" @click="getOrderList"></el-button>
           </el-input>
         </el-col>
       </el-row>
@@ -34,7 +34,7 @@
           </template>
         </el-table-column>
         <el-table-column label="操作">
-          <template slot-scope="scope">
+          <template>
             <el-button type="primary" icon="el-icon-edit" size="mini" @click="showBox"></el-button>
             <el-button type="success" icon="el-icon-location" size="mini" @click="showProgressBox"></el-button>
           </template>
@@ -47,7 +47,7 @@
       </el-pagination>
     </el-card>
     <!-- 修改地址的對話框 -->
-    <el-dialog title="修改地址" :visible.sync="addressVisible" width="50%">
+    <el-dialog title="修改地址" :visible.sync="addressVisible" width="50%" @close="addressDialogClosed">
       <el-form :model="addressForm" :rules="addressFormRules" ref="addressFormRef" label-width="100px">
         <el-form-item label="區域" prop="address1">
           <el-input v-model="addressForm.address1"></el-input>
@@ -78,6 +78,7 @@ export default {
         pagesize: 10
       },
       total: 0,
+      // 訂單列表的數據
       orderlist: [],
       addressVisible: false,
       addressForm: {
@@ -117,6 +118,10 @@ export default {
     },
     showProgressBox() {
       this.progressVisible = true
+    },
+    // 關閉對話框並清空
+    addressDialogClosed() {
+      this.$refs.addressFormRef.resetFields()
     }
   }
 }

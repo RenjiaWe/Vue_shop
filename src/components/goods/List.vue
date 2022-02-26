@@ -84,7 +84,7 @@ export default {
     },
     async removeById(id) {
       const confirmResult = await this.$confirm('此操作將永久刪除該商品, 是否繼續?', '提示', {
-        confirmButtonText: '确定',
+        confirmButtonText: '確定',
         cancelButtonText: '取消',
         type: 'warning'
       }).catch((err) => err)

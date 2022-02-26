@@ -107,7 +107,7 @@
       </div>
       <span slot="footer" class="dialog-footer">
         <el-button @click="setRoleDialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="saveRoleInfo">确 定</el-button>
+        <el-button type="primary" @click="saveRoleInfo">確 定</el-button>
       </span>
     </el-dialog>
   </div>
@@ -360,5 +360,8 @@ export default {
 }
 </script>
 
-<style>
+<style lang="less">
+.el-pagination {
+  margin: 15px;
+}
 </style>

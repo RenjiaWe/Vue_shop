@@ -11,18 +11,28 @@ import VueQuillEditor from 'vue-quill-editor'
 import 'quill/dist/quill.core.css' // import styles
 import 'quill/dist/quill.snow.css' // for snow theme
 import 'quill/dist/quill.bubble.css' // for bubble theme
+// 導入 NProgress 的JS和CSS
+import NProgress from 'nprogress'
+import 'nprogress/nprogress.css'
 // 導入axios
 import axios from 'axios'
 // 配置請求的根路徑
 axios.defaults.baseURL = 'http://127.0.0.1:8888/api/private/v1/'
 
+// 在 request攔截器中 展示進度條 NProgress.start();
 // axios請求攔截
 axios.interceptors.request.use(config => {
+  NProgress.start()
   // 為請求頭對象,添加 token 驗證的 Authorization 字段
   config.headers.Authorization = window.sessionStorage.getItem('token')
   return config
 })
 
+// 在response攔截器中 隱藏進度條 NProgress.done();
+axios.interceptors.response.use(config => {
+  NProgress.done()
+  return config
+})
 Vue.prototype.$http = axios
 
 Vue.config.productionTip = false

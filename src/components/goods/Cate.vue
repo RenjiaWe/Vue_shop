@@ -28,9 +28,9 @@
           <el-tag type="warning" v-else>三級</el-tag>
         </template>
         <!-- 操作 -->
-        <template slot="opt" slot-scope="scope">
-          <el-button type="primary" icon="el-icon-edit" size="mini">編輯</el-button>
-          <el-button type="danger" icon="el-icon-delete" size="mini">刪除</el-button>
+        <template v-slot:opt="scope">
+          <el-button type="primary" icon="el-icon-edit" size="mini" @click="showeditCateDialog(scope.row)">編輯</el-button>
+          <el-button type="danger" icon="el-icon-delete" size="mini" @click="removeCate(scope.row.cat_id)">刪除</el-button>
         </template>
       </tree-table>
       <!-- 分頁區域 -->
@@ -47,12 +47,27 @@
         <el-form-item label="父級分類: ">
           <!-- options  用來指定數據源-->
           <!-- props  用來指定配置對象 -->
-          <el-cascader clearable change-on-select expandTrigger="hover" v-model="selecteKeys" :options="parentCateList" :props="cascaderProps" @change="parentCateChanged"></el-cascader>
+          <el-cascader clearable change-on-select expandTrigger="hover" v-model="selecteKeys" :options="parentCateList" :props="{
+              expandTrigger: 'hover',
+              ...cascaderProps,
+              checkStrictly: 'true'}" @change="parentCateChanged"></el-cascader>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="addCateDialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="addCate">确 定</el-button>
+        <el-button type="primary" @click="addCate">確 定</el-button>
+      </span>
+    </el-dialog>
+    <!-- 编辑分類信息 -->
+    <el-dialog title="修改分類" :visible.sync="editCateDialogVisbel" width="50%">
+      <el-form :model="editCate" :rules="editCateRules" ref="editCateRef" label-width="100px">
+        <el-form-item label="分類名称" prop="cat_name">
+          <el-input v-model="editCate.cat_name"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="editCateDialogVisbel = false">取 消</el-button>
+        <el-button type="primary" @click="editCateInfo">確 定</el-button>
       </span>
     </el-dialog>
   </div>
@@ -124,7 +139,14 @@ export default {
         children: 'children'
       },
       // 選中的父級分類的ID陣列
-      selecteKeys: []
+      selecteKeys: [],
+      // 編輯對話框的顯示和隐藏
+      editCateDialogVisbel: false,
+      editCate: {},
+      editCateRules: {
+        cat_name: [{ required: true, message: '請輸入要修改的訊息', trigger: 'blur' }]
+      },
+      editCateId: ''
     }
   },
   created() {
@@ -204,6 +226,42 @@ export default {
       this.selecteKeys = []
       this.addCateForm.cat_level = 0
       this.addCateForm.cat_pid = 0
+    },
+    async showeditCateDialog(cateInfo) {
+      this.editCateId = cateInfo.cat_id
+      const { data: res } = await this.$http.get('categories/' + cateInfo.cat_id)
+      this.editCate = res.data
+      this.editCateDialogVisbel = true
+    },
+    // 編輯分類訊息
+    async editCateInfo() {
+      const { data: res } = await this.$http.put('categories/' + this.editCate.cat_id, { cat_name: this.editCate.cat_name })
+      if (res.meta.status !== 200) {
+        return this.$message.error('更新分類數據失敗!')
+      }
+      this.$message.success('更新分類數據成功!')
+      this.getCateList()
+      this.editCateDialogVisbel = false
+      // console.log(res)
+    },
+    // 删除分類
+    async removeCate(id) {
+      const confirRustle = await this.$confirm('此操作將永久删除該文件, 是否繼續?', '删除分類', {
+        confirmButtonText: '確定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).catch((err) => err)
+
+      if (confirRustle !== 'confirm') {
+        return this.$message.info('已取消删除操作!')
+      }
+
+      const { data: res } = await this.$http.delete('categories/' + id)
+      if (res.meta.status !== 200) {
+        return this.$message.error('分類删除失敗!')
+      }
+      this.$message.success('該分類已经成功删除!')
+      this.getCateList()
     }
   }
 }
