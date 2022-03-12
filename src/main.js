@@ -17,7 +17,7 @@ import 'nprogress/nprogress.css'
 // 導入axios
 import axios from 'axios'
 // 配置請求的根路徑
-axios.defaults.baseURL = 'http://127.0.0.1:8888/api/private/v1/'
+axios.defaults.baseURL = 'https://lianghj.top:8888/api/private/v1/'
 
 // 在 request攔截器中 展示進度條 NProgress.start();
 // axios請求攔截
